@@ -17,7 +17,7 @@ const name = ref<string>('')
 const input_content = ref<string>('')
 const input_category = ref<string>('')
 
-const todo_asc = computed(() => todos.value.sort(
+const todos_asc = computed(() => todos.value.sort(
   (a, b) => Number(b.createdAt) - Number(a.createdAt)
 ))
 
@@ -43,6 +43,10 @@ const addTodo = () => {
   input_category.value = '';
 }
 
+const removeTodo = (todoDeleted: ITodo) => {
+  todos.value = todos.value.filter((todo) => todo !== todoDeleted)
+}
+
 watch(todos, (newVal) => {
   localStorage.setItem('todos', JSON.stringify(newVal))
 }, {
@@ -55,6 +59,7 @@ watch(name, (newVal) => {
 
 onMounted(() => {
   name.value = localStorage.getItem('name') || nameDefault
+  todos.value = JSON.parse(localStorage.getItem('todos')) || []
 })
 
 </script>
@@ -92,6 +97,26 @@ onMounted(() => {
 
         <input type="submit" value="Adicionar Tarefa">
       </form>
+    </section>
+
+    <section class="todo-list">
+      <h3>Lista de Tarefas</h3>
+      <div class="list">
+        <div v-for="todo in todos_asc" :class="`todo-item ${todo.done && 'done'}`">
+          <label>
+            <input type="checkbox" v-model="todo.done" />
+            <span :class="`bubble ${todo.category}`"></span>
+          </label>
+
+          <div class="todo-content">
+            <input type="text" v-model="todo.content"/>
+          </div>
+
+          <div class="actions">
+            <button class="delete" @click="removeTodo(todo)">Excluir</button>
+          </div>
+        </div>
+      </div>
     </section>
   </main>
 </template>
